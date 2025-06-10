@@ -1,35 +1,37 @@
+alert(result);
+/* Versión en español usando let y textos en español */
 let ingresos = [];
 let gastos = [];
-let input;
+let entrada;
 
 while (true) {
-    input = prompt("Enter 'ingreso' or 'gasto' to add, or 'end' to finish:").toLowerCase();
-    if (input === "end") break;
-    if (input !== "ingreso" && input !== "gasto") {
-        alert("Invalid option. Please enter 'ingreso', 'gasto', or 'end'.");
+    entrada = prompt("Escribe 'ingreso' o 'gasto' para agregar, o 'fin' para terminar:").toLowerCase();
+    if (entrada === "fin") break;
+    if (entrada !== "ingreso" && entrada !== "gasto") {
+        alert("Opción inválida. Por favor escribe 'ingreso', 'gasto' o 'fin'.");
         continue;
     }
-    let desc = prompt(`Enter ${input} description:`);
-    let monto = parseFloat(prompt(`Enter ${input} amount:`));
+    let descripcion = prompt(`Ingresa la descripción del ${entrada}:`);
+    let monto = parseFloat(prompt(`Ingresa el monto del ${entrada}:`));
     if (isNaN(monto) || monto < 0) {
-        alert("Invalid amount. Try again.");
+        alert("Monto inválido. Intenta de nuevo.");
         continue;
     }
-    if (input === "income") {
-        ingresos.push({ desc, monto });
+    if (entrada === "ingreso") {
+        ingresos.push({ descripcion, monto });
     } else {
-        gastos.push({ desc, monto });
+        gastos.push({ descripcion, monto });
     }
 }
 
-let totalIngresos = ingresos.reduce((sum, item) => sum + item.monto, 0);
-let totalGastos = gastos.reduce((sum, item) => sum + item.monto, 0);
-let balance = totalIncome - totalGastos;
+let totalIngresos = ingresos.reduce((suma, item) => suma + item.monto, 0);
+let totalGastos = gastos.reduce((suma, item) => suma + item.monto, 0);
+let balance = totalIngresos - totalGastos;
 
-let result = "ingreso:\n";
-ingresos.forEach(i => result += `- ${i.desc}: $${i.monto}\n`);
-result += "\ngastos:\n";
-gastos.forEach(b => result += `- ${b.desc}: $${b.monto}\n`);
-result += `\nTotal Income: $${totalIngresos}\nTotal gastos: $${totalGastos}\nBalance: $${balance}`;
+let resultado = "Ingresos:\n";
+ingresos.forEach(i => resultado += `- ${i.descripcion}: $${i.monto}\n`);
+resultado += "\nGastos:\n";
+gastos.forEach(g => resultado += `- ${g.descripcion}: $${g.monto}\n`);
+resultado += `\nTotal de ingresos: $${totalIngresos}\nTotal de gastos: $${totalGastos}\nBalance: $${balance}`;
 
-alert(result);
+alert(resultado);
