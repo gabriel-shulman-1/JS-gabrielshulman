@@ -1,11 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calculadora de movimientos monetarios</title>
-</head>
-<body style="background-color: black;">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
+  <body class="bg-dark-subtle text-dark-emphasis">
+    <div class="container py-4">
+      <div class="row g-3">
+        <!-- Columna 1: Formulario -->
+        <div class="col-md-4">
+          <div class="card p-3 mb-2 bg-secondary-subtle text-secondary-emphasis" id="form-section">
+            <form id="movimiento-form" autocomplete="off">
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="tipo" />
+                <label class="form-check-label" for="tipo" id="tipo-tx">
+                  Ingreso/Gasto
+                </label>
+              </div>
+              <div class="input-group mb-3">
+                <label class="input-group-text" for="descripcion">Descripción:</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  id="descripcion"
+                  name="descripcion"
+                  required
+                />
+              </div>
+              <div class="input-group mb-3">
+                <label class="input-group-text" for="monto">Monto:</label>
+                <input
+                  class="form-control"
+                  type="number"
+                  id="monto"
+                  name="monto"
+                  required
+                  min="0.01"
+                  step="0.01"
+                />
+                <span class="input-group-text">$</span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-primary" id="agregar_mov" type="submit">
+                  Agregar movimiento
+                </button>
+                <button class="btn btn-primary" id="finalizar_mov" type="button">
+                  Finalizar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- Columna 2: Lista de registros -->
+        <div class="col-md-4">
+          <div class="card p-3 mb-2 bg-light text-dark" id="lista-registros">
+            <h5 class="card-title">Lista de registros</h5>
+            <ul class="list-group" id="registros-ul">
+              <!-- Los registros se agregarán aquí dinámicamente -->
+            </ul>
+          </div>
+        </div>
+        <!-- Columna 3: Resumen de movimientos -->
+        <div class="col-md-4">
+          <div class="card p-3 mb-2 bg-info-subtle text-info-emphasis" id="resumen-movimientos">
+            <h5 class="card-title">Resumen de movimientos</h5>
+            <ul class="list-group">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Total ingresos
+                <span class="badge bg-success rounded-pill" id="total-ingresos">$0.00</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Total gastos
+                <span class="badge bg-danger rounded-pill" id="total-gastos">$0.00</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Balance
+                <span class="badge bg-primary rounded-pill" id="balance">$0.00</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="toast"
+      id="toastAlert"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="toast-header">
+        <strong class="me-auto" id="errorTittle"></strong>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="toast-body" id="errorDesc"></div>
+    </div>
     <script src="./script.js"></script>
-</body>
+  </body>
 </html>

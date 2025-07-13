@@ -1,83 +1,116 @@
+let registrosDisponibles = [];
+let registros = [];
+
 function main() {
-  let movs = movimientos();
-  let resultado = prepararIngresoGastos(movs.ingresos, movs.gastos);
-  let balance = calcularBalance(movs.ingresos, movs.gastos);
-  let final = prepararResumen(resultado, balance);
-  alert(final);
+  movimientos();
+  mostrarRegistrosDisponibles()
 }
 
-function calcularBalance(ingresos, gastos) {
-  let totalIngresos = ingresos.reduce((suma, item) => suma + item.monto, 0);
-  let totalGastos = gastos.reduce((suma, item) => suma + item.monto, 0);
-  let balance = totalIngresos - totalGastos;
-  let resultado = [totalIngresos, totalGastos, balance];
-  return resultado;
-}
-
-function prepararIngresoGastos(ingresos, gastos) {
-  let resultado = "Ingresos:\n";
-  ingresos.forEach((i) => (resultado += `- ${i.descripcion}: $${i.monto}\n`));
-  resultado += "\nGastos:\n";
-  gastos.forEach((g) => (resultado += `- ${g.descripcion}: $${g.monto}\n`));
-  return resultado;
-}
-
+//funciones principales
+//registrar y guardar movimientos
+//1
 function movimientos() {
-  let ingresos = [];
-  let gastos = [];
-  let entrada;
-  while (true) {
-    entrada = prompt(
-      "Escribe 'ingreso' o 'gasto' para agregar, o 'fin' para terminar:"
-    ).toLowerCase();
-    if (entrada === "fin") break;
-    if (entrada !== "ingreso" && entrada !== "gasto") {
-      alert("Opción inválida. Por favor escribe 'ingreso', 'gasto' o 'fin'.");
-      continue;
-    }
-    let descripcion = prompt(`Ingresa la descripción del ${entrada}:`);
-    let monto = parseFloat(prompt(`Ingresa el monto del ${entrada}:`));
-    if (isNaN(monto) || monto < 0) {
-      alert("Monto inválido. Intenta de nuevo.");
-      continue;
-    }
-    if (entrada === "ingreso") {
-      ingresos.push({ descripcion, monto });
+  let nRegistro,
+    nMovimiento = 1;
+  let tipo = document.getElementById("tipo");
+  let descripcion = document.getElementById("descripcion");
+  let monto = document.getElementById("monto");
+  let agregarMovimiento = document.getElementById("agregar_mov");
+  let finalizarRegistro = document.getElementById("finalizar_mov");
+  agregarMovimiento.addEventListener("click", () => {
+    if (descripcion.value == null || monto.value == null || monto.value <= 0) {
+      showToast("Atencion", "faltan argumentos");
     } else {
-      gastos.push({ descripcion, monto });
+      let newRegistro = new registro(
+        tipo.value,
+        descripcion.value,
+        Number(monto.value)
+      );
+      registros.push(newRegistro);
+      nMovimiento++;
     }
-  }
-  return { ingresos, gastos };
-}
-
-function prepararResumen(resultado, balance) {
-  let resumen = "Resumen de movimientos:\n";
-  resumen += resultado;
-  resumen += `\nTotal de ingresos: $${balance[0]}\n`;
-  resumen += `Total de gastos: $${balance[1]}\n`;
-  resumen += `Balance: $${balance[2]}\n`;
-  return resumen;
-}
-
-function calculador() {
-  let fisrt = true;
-  alert("Bienvenido al sistema de gestión de ingresos y gastos.");
-  alert(
-    "Por favor, sigue las instrucciones para ingresar tus movimientos financieros."
-  );
-  while (fisrt) {
-    main();
-    let confirmacion = confirm(
-      "¿Deseas continuar con el sistema de gestión de ingresos y gastos?"
-    );
-    if (confirmacion) {
-      alert("Continuando con el sigiente ingreso de datos.");
-      fisrt = true;
+  });
+  finalizarRegistro.addEventListener("click", () => {
+    if (registros.length == 0) {
+      showToast("Atencion", "debe haber al menos 1 registro");
     } else {
-      alert("Saliendo del sistema.");
-      break;
+      localStorage.setItem(
+        "registro" + (nRegistro++).toString(),
+        JSON.stringify(registros)
+      );
+      registrosDisponibles.push("registro" + (nRegistro++).toString())
+      showToast("Éxito", "Registro guardado en localStorage");
+      registros = [];
     }
+  });
+}
+//2
+function calcularTotalesPorRegistro(registroKey) {
+  let totalIngresos = 0;
+  let totalGastos = 0;
+  const registrosStr = localStorage.getItem(registroKey);
+  if (!registrosStr) return { ingresos: 0, gastos: 0, saldo: 0 };
+  const registros = JSON.parse(registrosStr);
+  registros.forEach(registro => {
+    if (registro.tipo === "ingreso") {
+      totalIngresos += registro.monto;
+    } else if (registro.tipo === "gasto") {
+      totalGastos += registro.monto;
+    }
+  });
+  return {
+    ingresos: totalIngresos,
+    gastos: totalGastos,
+    saldo: totalIngresos - totalGastos
+  };
+}
+document.getElementById("lista-registros")?.addEventListener("click", function(e) {
+  if (e.target.tagName === "BUTTON") {
+    const registroKey = e.target.id;
+    const totales = calcularTotalesPorRegistro(registroKey);
+    document.getElementById("total-ingresos").textContent = totales.ingresos;
+    document.getElementById("total-gastos").textContent = totales.gastos;
+    document.getElementById("balance").textContent = totales.saldo;
+  }
+});
+//muestro los registros disponibles
+//3
+function mostrarRegistrosDisponibles() {
+  const lista = document.getElementById("lista-registros");
+  if (!lista) return;
+  lista.innerHTML = "";
+  if (registrosDisponibles.length === 0) {
+    const li = document.createElement("li");
+    li.textContent = "no hay registros aun";
+    lista.appendChild(li);
+  } else {
+    lista.innerHTML = registrosDisponibles
+      .map(
+      registroKey =>
+        `<li><button id="${registroKey}"class="btn btn-primary">${registroKey}</button></li>`
+      )
+      .join("");
   }
 }
 
-calculador();
+//Helpers
+
+function showToast(toastTitle, toastError) {
+  const toastElement = document.getElementById("toastAlert");
+  const titleElem = document.getElementById("errorTittle");
+  const bodyElem = document.getElementById("errorDesc");
+  titleElem.innerHTML = "<p>" + toastTitle + "</p>";
+  bodyElem.innerHTML = "<p>" + toastError + "</p>";
+  const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
+  toast.show();
+}
+
+class registro {
+  constructor(tipo, descripcion, monto) {
+    this.tipo = tipo;
+    this.descripcion = descripcion;
+    this.monto = monto;
+  }
+}
+
+main();
