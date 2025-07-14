@@ -6,30 +6,31 @@ let tipoDeMov;
 let montoRegistro;
 let nRegistro;
 let registroF1;
-let contenedorRegistros = [];
+let a;
+
+//funciones principales
 
 function guardarRegistro() {
   let prevRegistros;
-  let a = 1;
   let movimientosMenusales = [];
   let agregarMovimiento = document.getElementById("agregar_mov");
   let finalizarRegistro = document.getElementById("finalizar_mov");
-  let tipo = document.getElementById("tipo");
   let descripcion = document.getElementById("descripcion");
   let monto = document.getElementById("monto");
   let form = document.getElementById("movimiento-form");
+  const selectTipo = document.getElementById("tipo");
   agregarMovimiento.addEventListener("click", () => {
     if (descripcion.value == "" || monto.value == "") {
       showToast("Atencion", "Faltan datos a ingresar");
     } else {
       a++;
       let nMovimiento = new registro(
-        tipo.value,
+        selectTipo.value,
         descripcion.value,
         Number(monto.value)
       );
       movimientosMenusales.push(nMovimiento);
-      console.log(movimientosMenusales);
+      console.log(nMovimiento);
       form.reset();
     }
   });
@@ -37,15 +38,8 @@ function guardarRegistro() {
     if (a == 1) {
       showToast("Atencion", "No ingresaste ningun registro");
     } else {
-      let nMovimiento = new registro(
-        tipo.value,
-        descripcion.value,
-        Number(monto.value)
-      );
-      movimientosMenusales.push(nMovimiento);
       form.reset();
       registroF1 = JSON.stringify([movimientosMenusales]);
-      b++;
       localStorage.setItem("registro" + b.toString(), registroF1);
       a = 1;
       if (localStorage.getItem("registros") == null) {
@@ -54,11 +48,12 @@ function guardarRegistro() {
           JSON.stringify(["registro" + b.toString()])
         );
       } else {
-        // Obtener los registros previos
         prevRegistros = JSON.parse(localStorage.getItem("registros"));
         prevRegistros.push("registro" + b.toString());
         localStorage.setItem("registros", JSON.stringify(prevRegistros));
       }
+      mostrarRegistrosDisponibles();
+      b++;
       movimientosMenusales = [];
     }
   });
@@ -69,16 +64,9 @@ function crearResumen(key) {
   let totalGastos = 0;
   const registrosStr = localStorage.getItem(key);
   const registrosArr = JSON.parse(registrosStr);
-  const registros = Array.isArray(registrosArr[0])
-    ? registrosArr[0]
-    : registrosArr;
-
+  const registros = Array.isArray(registrosArr[0])?registrosArr[0]:registrosArr;
   registros.forEach((registro) => {
-    if (
-      registro.tipo === "true" ||
-      registro.tipo === true ||
-      registro.tipo === "ingreso"
-    ) {
+    if (registro.tipo === "true") {
       totalIngresos += registro.monto;
     } else {
       totalGastos += registro.monto;
@@ -87,12 +75,7 @@ function crearResumen(key) {
   document.getElementById("total-ingresos").textContent = totalIngresos;
   document.getElementById("total-gastos").textContent = totalGastos;
   document.getElementById("balance").textContent = totalIngresos - totalGastos;
-
-  return {
-    ingresos: totalIngresos,
-    gastos: totalGastos,
-    saldo: totalIngresos - totalGastos,
-  };
+  crearTablaRegistros(key)
 }
 
 function mostrarRegistrosDisponibles() {
@@ -116,6 +99,17 @@ function mostrarRegistrosDisponibles() {
 
 //helpers
 
+function manejarEstadoSelectTipo() {
+  const selectTipo = document.getElementById("tipo");
+  selectTipo.addEventListener("change", () => {
+    if (selectTipo.value == true) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+}
+
 function showToast(toastTitle, toastError) {
   const toastElement = document.getElementById("toastAlert");
   const titleElem = document.getElementById("errorTittle");
@@ -124,6 +118,36 @@ function showToast(toastTitle, toastError) {
   bodyElem.innerHTML = "<p>" + toastError + "</p>";
   const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
   toast.show();
+}
+
+function crearTablaRegistros(key) {
+  const registrosStr = localStorage.getItem(key);
+  const registrosArr = JSON.parse(registrosStr);
+  const cont = document.getElementById("resumen-general")
+  cont.innerHTML = ""
+  const table = document.createElement("table");
+  table.className = "table table-striped";
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>Ingreso/Gasto</th>
+      <th>Descripción</th>
+      <th>Monto</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  registrosArr[0].forEach((registro) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${registro.tipo === "true" ? "Ingreso" : "Gasto"}</td>
+      <td>${registro.descripcion}</td>
+      <td>${registro.monto}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  cont.appendChild(table)
 }
 
 class registro {

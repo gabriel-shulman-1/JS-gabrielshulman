@@ -16,16 +16,24 @@
       <div class="row g-3">
         <!-- Columna 1: Formulario -->
         <div class="col-md-4">
-          <div class="card p-3 mb-2 bg-secondary-subtle text-secondary-emphasis" id="form-section">
+          <div
+            class="card p-3 mb-2 bg-secondary-subtle text-secondary-emphasis"
+            id="form-section"
+          >
             <form id="movimiento-form" autocomplete="off">
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="tipo" />
-                <label class="form-check-label" for="tipo" id="tipo-tx">
-                  Ingreso/Gasto
-                </label>
+              <div class="mb-3">
+                <label for="tipo" class="form-label" id="tipo-tx"
+                  >Tipo de movimiento</label
+                >
+                <select class="form-select" id="tipo" name="tipo" required>
+                  <option value="true">Ingreso</option>
+                  <option value="false">Gasto</option>
+                </select>
               </div>
               <div class="input-group mb-3">
-                <label class="input-group-text" for="descripcion">Descripción:</label>
+                <label class="input-group-text" for="descripcion"
+                  >Descripción:</label
+                >
                 <input
                   class="form-control"
                   type="text"
@@ -51,7 +59,11 @@
                 <button class="btn btn-primary" id="agregar_mov" type="submit">
                   Agregar movimiento
                 </button>
-                <button class="btn btn-primary" id="finalizar_mov" type="button">
+                <button
+                  class="btn btn-primary"
+                  id="finalizar_mov"
+                  type="button"
+                >
                   Finalizar
                 </button>
               </div>
@@ -69,26 +81,54 @@
         </div>
         <!-- Columna 3: Resumen de movimientos -->
         <div class="col-md-4">
-          <div class="card p-3 mb-2 bg-info-subtle text-info-emphasis" id="resumen-movimientos">
+          <div
+            class="card p-3 mb-2 bg-info-subtle text-info-emphasis"
+            id="resumen-movimientos"
+          >
             <h5 class="card-title">Resumen de movimientos</h5>
             <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
                 Total ingresos
-                <span class="badge bg-success rounded-pill" id="total-ingresos">$0.00</span>
+                <span class="badge bg-success rounded-pill" id="total-ingresos"
+                  >$0.00</span
+                >
               </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
                 Total gastos
-                <span class="badge bg-danger rounded-pill" id="total-gastos">$0.00</span>
+                <span class="badge bg-danger rounded-pill" id="total-gastos"
+                  >$0.00</span
+                >
               </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
                 Balance
-                <span class="badge bg-primary rounded-pill" id="balance">$0.00</span>
+                <span class="badge bg-primary rounded-pill" id="balance"
+                  >$0.00</span
+                >
               </li>
             </ul>
           </div>
         </div>
       </div>
+      <!-- Nueva fila para el resumen general -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div
+            class="card p-3 bg-warning-subtle text-warning-emphasis"
+            id="resumen-general"
+          >
+            <h5 class="card-title">Resumen general</h5>
+            <p class="mb-0">Seleccione un registro</p>
+          </div>
+        </div>
+      </div>
     </div>
+    <!--toast-->
     <div
       class="toast"
       id="toastAlert"
