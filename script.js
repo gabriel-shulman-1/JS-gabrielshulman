@@ -49,12 +49,11 @@ function calcularTotalesPorRegistro(registroKey) {
   let totalIngresos = 0;
   let totalGastos = 0;
   const registrosStr = localStorage.getItem(registroKey);
-  if (!registrosStr) return { ingresos: 0, gastos: 0, saldo: 0 };
   const registros = JSON.parse(registrosStr);
   registros.forEach(registro => {
-    if (registro.tipo === "ingreso") {
+    if (registro.tipo === true) {
       totalIngresos += registro.monto;
-    } else if (registro.tipo === "gasto") {
+    } else {
       totalGastos += registro.monto;
     }
   });
@@ -64,6 +63,7 @@ function calcularTotalesPorRegistro(registroKey) {
     saldo: totalIngresos - totalGastos
   };
 }
+
 document.getElementById("lista-registros")?.addEventListener("click", function(e) {
   if (e.target.tagName === "BUTTON") {
     const registroKey = e.target.id;
