@@ -1,56 +1,72 @@
-let registrosDisponibles = [];
-let registros = [];
+let registrosDisponibles = document.getElementById("registrosDisponibles");
+let b = 1;
+let numeroMov;
+let descripcion;
+let tipoDeMov;
+let montoRegistro;
+let nRegistro;
+let registroF1;
+let contenedorRegistros = [];
 
-function main() {
-  movimientos();
-  mostrarRegistrosDisponibles()
-}
-
-//funciones principales
-//registrar y guardar movimientos
-//1
-function movimientos() {
-  let nRegistro,
-    nMovimiento = 1;
+function guardarRegistro() {
+  let prevRegistros;
+  let a = 1;
+  let movimientosMenusales = [];
+  let agregarMovimiento = document.getElementById("agregar_mov");
+  let finalizarRegistro = document.getElementById("finalizar_mov");
   let tipo = document.getElementById("tipo");
   let descripcion = document.getElementById("descripcion");
   let monto = document.getElementById("monto");
-  let agregarMovimiento = document.getElementById("agregar_mov");
-  let finalizarRegistro = document.getElementById("finalizar_mov");
+  let form = document.getElementById("movimiento-form");
   agregarMovimiento.addEventListener("click", () => {
-    if (descripcion.value == null || monto.value == null || monto.value <= 0) {
-      showToast("Atencion", "faltan argumentos");
+    if (descripcion.value == "" || monto.value == "") {
+      showToast("Atencion", "Faltan datos a ingresar");
     } else {
-      let newRegistro = new registro(
+      a++;
+      let nMovimiento = new registro(
         tipo.value,
         descripcion.value,
         Number(monto.value)
       );
-      registros.push(newRegistro);
-      nMovimiento++;
+      movimientosMenusales.push(nMovimiento);
+      console.log(movimientosMenusales);
+      form.reset();
     }
   });
   finalizarRegistro.addEventListener("click", () => {
-    if (registros.length == 0) {
-      showToast("Atencion", "debe haber al menos 1 registro");
+    if (a == 1) {
+      showToast("Atencion", "No ingresaste ningun registro");
     } else {
-      localStorage.setItem(
-        "registro" + (nRegistro++).toString(),
-        JSON.stringify(registros)
+      let nMovimiento = new registro(
+        tipo.value,
+        descripcion.value,
+        Number(monto.value)
       );
-      registrosDisponibles.push("registro" + (nRegistro++).toString())
-      showToast("Éxito", "Registro guardado en localStorage");
-      registros = [];
+      movimientosMenusales.push(nMovimiento);
+      form.reset();
+      registroF1 = JSON.stringify([movimientosMenusales]);
+      b++;
+      localStorage.setItem("registro" + b.toString(), registroF1);
+      a = 1;
+      if (localStorage.getItem("registros") == null) {
+        localStorage.setItem("registros", JSON.stringify(["registro" + b.toString()]));
+            } else {
+        // Obtener los registros previos
+        prevRegistros = JSON.parse(localStorage.getItem("registros"));
+        prevRegistros.push("registro" + b.toString());
+        localStorage.setItem("registros", JSON.stringify(prevRegistros));
+      }
+      movimientosMenusales = [];
     }
   });
 }
-//2
-function calcularTotalesPorRegistro(registroKey) {
+
+function crearResumen(key) {
   let totalIngresos = 0;
   let totalGastos = 0;
-  const registrosStr = localStorage.getItem(registroKey);
+  const registrosStr = localStorage.getItem(key);
   const registros = JSON.parse(registrosStr);
-  registros.forEach(registro => {
+  registros.forEach((registro) => {
     if (registro.tipo === true) {
       totalIngresos += registro.monto;
     } else {
@@ -60,40 +76,30 @@ function calcularTotalesPorRegistro(registroKey) {
   return {
     ingresos: totalIngresos,
     gastos: totalGastos,
-    saldo: totalIngresos - totalGastos
+    saldo: totalIngresos - totalGastos,
   };
 }
 
-document.getElementById("lista-registros")?.addEventListener("click", function(e) {
-  if (e.target.tagName === "BUTTON") {
-    const registroKey = e.target.id;
-    const totales = calcularTotalesPorRegistro(registroKey);
-    document.getElementById("total-ingresos").textContent = totales.ingresos;
-    document.getElementById("total-gastos").textContent = totales.gastos;
-    document.getElementById("balance").textContent = totales.saldo;
-  }
-});
-//muestro los registros disponibles
-//3
 function mostrarRegistrosDisponibles() {
   const lista = document.getElementById("lista-registros");
-  if (!lista) return;
-  lista.innerHTML = "";
-  if (registrosDisponibles.length === 0) {
+  const registrosStr = localStorage.getItem("registros");
+  if (!registrosStr) {
     const li = document.createElement("li");
     li.textContent = "no hay registros aun";
     lista.appendChild(li);
-  } else {
-    lista.innerHTML = registrosDisponibles
+    return;
+    } else {
+    const registros = JSON.parse(registrosStr);
+    lista.innerHTML = registros
       .map(
-      registroKey =>
-        `<li><button id="${registroKey}"class="btn btn-primary">${registroKey}</button></li>`
+      (registroKey) =>
+        `<li><button id="${registroKey}" class="btn btn-primary">${registroKey}</button></li>`
       )
       .join("");
   }
 }
 
-//Helpers
+//helpers
 
 function showToast(toastTitle, toastError) {
   const toastElement = document.getElementById("toastAlert");
@@ -113,4 +119,11 @@ class registro {
   }
 }
 
-main();
+//ejecutar modulos
+
+function ejecutar() {
+  guardarRegistro();
+  mostrarRegistrosDisponibles();
+}
+
+ejecutar();
