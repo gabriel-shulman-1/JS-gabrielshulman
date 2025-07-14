@@ -49,8 +49,11 @@ function guardarRegistro() {
       localStorage.setItem("registro" + b.toString(), registroF1);
       a = 1;
       if (localStorage.getItem("registros") == null) {
-        localStorage.setItem("registros", JSON.stringify(["registro" + b.toString()]));
-            } else {
+        localStorage.setItem(
+          "registros",
+          JSON.stringify(["registro" + b.toString()])
+        );
+      } else {
         // Obtener los registros previos
         prevRegistros = JSON.parse(localStorage.getItem("registros"));
         prevRegistros.push("registro" + b.toString());
@@ -65,14 +68,26 @@ function crearResumen(key) {
   let totalIngresos = 0;
   let totalGastos = 0;
   const registrosStr = localStorage.getItem(key);
-  const registros = JSON.parse(registrosStr);
+  const registrosArr = JSON.parse(registrosStr);
+  const registros = Array.isArray(registrosArr[0])
+    ? registrosArr[0]
+    : registrosArr;
+
   registros.forEach((registro) => {
-    if (registro.tipo === true) {
+    if (
+      registro.tipo === "true" ||
+      registro.tipo === true ||
+      registro.tipo === "ingreso"
+    ) {
       totalIngresos += registro.monto;
     } else {
       totalGastos += registro.monto;
     }
   });
+  document.getElementById("total-ingresos").textContent = totalIngresos;
+  document.getElementById("total-gastos").textContent = totalGastos;
+  document.getElementById("balance").textContent = totalIngresos - totalGastos;
+
   return {
     ingresos: totalIngresos,
     gastos: totalGastos,
@@ -88,12 +103,12 @@ function mostrarRegistrosDisponibles() {
     li.textContent = "no hay registros aun";
     lista.appendChild(li);
     return;
-    } else {
+  } else {
     const registros = JSON.parse(registrosStr);
     lista.innerHTML = registros
       .map(
-      (registroKey) =>
-        `<li><button id="${registroKey}" class="btn btn-primary">${registroKey}</button></li>`
+        (registroKey) =>
+          `<li><button id="${registroKey}" class="btn btn-primary" onclick="crearResumen('${registroKey}')">${registroKey}</button></li>`
       )
       .join("");
   }
