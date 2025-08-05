@@ -8,7 +8,37 @@ let nRegistro;
 let registroF1;
 let a;
 
-//funciones principales
+//API's
+
+async function getCotizacionBlue(tipe) {
+  try {
+    const respuesta = await fetch("https://api.bluelytics.com.ar/v2/latest");
+    const data = await respuesta.json();
+    const dolar = data.blue.value_avg;
+    const euro = data.blue_euro.value_avg;
+    let cotizacion = [dolar, euro];
+    return cotizacion;
+  } catch (error) {
+    console.error("Error al obtener la cotización:", error);
+    return null;
+  }
+}
+
+async function monedaExtranjera(monto, tipe) {
+  const cotizacion = await getCotizacionBlue();
+  let result;
+  if (cotizacion && tipe) {
+    result = monto / cotizacion[0];
+    return result;
+  } else if (cotizacion && !tipe) {
+    result = monto / cotizacion[1];
+    return result;
+  } else {
+    throw new Error("No se pudo obtener la cotización.");
+  }
+}
+
+//Funciones principales
 
 function guardarRegistro() {
   let prevRegistros;
@@ -30,7 +60,6 @@ function guardarRegistro() {
         Number(monto.value)
       );
       movimientosMenusales.push(nMovimiento);
-      console.log(nMovimiento);
       form.reset();
     }
   });
@@ -64,7 +93,9 @@ function crearResumen(key) {
   let totalGastos = 0;
   const registrosStr = localStorage.getItem(key);
   const registrosArr = JSON.parse(registrosStr);
-  const registros = Array.isArray(registrosArr[0])?registrosArr[0]:registrosArr;
+  const registros = Array.isArray(registrosArr[0])
+    ? registrosArr[0]
+    : registrosArr;
   registros.forEach((registro) => {
     if (registro.tipo === "true") {
       totalIngresos += registro.monto;
@@ -75,7 +106,7 @@ function crearResumen(key) {
   document.getElementById("total-ingresos").textContent = totalIngresos;
   document.getElementById("total-gastos").textContent = totalGastos;
   document.getElementById("balance").textContent = totalIngresos - totalGastos;
-  crearTablaRegistros(key)
+  crearTablaRegistros(key);
 }
 
 function mostrarRegistrosDisponibles() {
@@ -91,13 +122,27 @@ function mostrarRegistrosDisponibles() {
     lista.innerHTML = registros
       .map(
         (registroKey) =>
-          `<li><button id="${registroKey}" class="btn btn-primary" onclick="crearResumen('${registroKey}')">${registroKey}</button></li>`
+          `<li><button id="${registroKey}" class="btn btn-primary" onclick="crearResumen('${registroKey}')"><i class="bi bi-file-earmark"></i> ${registroKey}</button>
+        <button class="btn btn-danger" onclick="borrarResumen('${registroKey}')"><i class="bi bi-trash"></i> Borrar</button></li>`
       )
       .join("");
   }
 }
 
 //helpers
+
+function borrarResumen(registro) {
+  localStorage.removeItem(registro);
+  showToast("Atencion!", registro + " borrado.");
+  let registros = JSON.parse(localStorage.getItem("registros")) || [];
+  registros = registros.filter((r) => r !== registro);
+  localStorage.setItem("registros", JSON.stringify(registros));
+  mostrarRegistrosDisponibles();
+  document.getElementById("resumen-general").innerHTML = "";
+  document.getElementById("total-ingresos").textContent = "0";
+  document.getElementById("total-gastos").textContent = "0";
+  document.getElementById("balance").textContent = "0";
+}
 
 function manejarEstadoSelectTipo() {
   const selectTipo = document.getElementById("tipo");
@@ -123,8 +168,8 @@ function showToast(toastTitle, toastError) {
 function crearTablaRegistros(key) {
   const registrosStr = localStorage.getItem(key);
   const registrosArr = JSON.parse(registrosStr);
-  const cont = document.getElementById("resumen-general")
-  cont.innerHTML = ""
+  const cont = document.getElementById("resumen-general");
+  cont.innerHTML = "";
   const table = document.createElement("table");
   table.className = "table table-striped";
   const thead = document.createElement("thead");
@@ -132,7 +177,9 @@ function crearTablaRegistros(key) {
     <tr>
       <th>Ingreso/Gasto</th>
       <th>Descripción</th>
-      <th>Monto</th>
+      <th>Monto (Pesos)</th>
+      <th><i class="bi bi-currency-dollar"></i></th>
+      <th><i class="bi bi-currency-euro"></i></th>
     </tr>
   `;
   table.appendChild(thead);
@@ -142,12 +189,25 @@ function crearTablaRegistros(key) {
     tr.innerHTML = `
       <td>${registro.tipo === "true" ? "Ingreso" : "Gasto"}</td>
       <td>${registro.descripcion}</td>
-      <td>${registro.monto}</td>
+      <td>${registro.monto}$</td>
+      <td><p class="dolar-value">Cargando...</p><i class="bi bi-currency-dollar"></i></td>
+      <td><p class="euro-value">Cargando...</p><i class="bi bi-currency-euro"></i></td>
     `;
+    // Mostrar el resultado de monedaExtranjera en los <p>
+    monedaExtranjera(registro.monto, true).then((dolar) => {
+      tr.querySelector(".dolar-value").textContent = dolar
+        ? dolar.toFixed(2)
+        : "Error";
+    });
+    monedaExtranjera(registro.monto, false).then((euro) => {
+      tr.querySelector(".euro-value").textContent = euro
+        ? euro.toFixed(2)
+        : "Error";
+    });
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
-  cont.appendChild(table)
+  cont.appendChild(table);
 }
 
 class registro {
@@ -161,8 +221,8 @@ class registro {
 //ejecutar modulos
 
 function ejecutar() {
-  guardarRegistro();
   mostrarRegistrosDisponibles();
+  guardarRegistro();
 }
 
 ejecutar();
