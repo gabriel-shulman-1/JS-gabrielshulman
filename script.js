@@ -1,5 +1,5 @@
 let registrosDisponibles = document.getElementById("registrosDisponibles");
-let b = 1;
+let b = Math.floor(1000 + Math.random() * 9000);
 let numeroMov;
 let descripcion;
 let tipoDeMov;
@@ -43,28 +43,32 @@ async function monedaExtranjera(monto, tipe) {
 function guardarRegistro() {
   let prevRegistros;
   let movimientosMenusales = [];
-  let agregarMovimiento = document.getElementById("agregar_mov");
-  let finalizarRegistro = document.getElementById("finalizar_mov");
-  let descripcion = document.getElementById("descripcion");
-  let monto = document.getElementById("monto");
   let form = document.getElementById("movimiento-form");
+  const agregarMovimiento = document.getElementById("agregar_mov");
+  const finalizarRegistro = document.getElementById("finalizar_mov");
   const selectTipo = document.getElementById("tipo");
+  const descripcion = document.getElementById("descripcion");
+  const monto = document.getElementById("monto");
   agregarMovimiento.addEventListener("click", () => {
-    if (descripcion.value == "" || monto.value == "") {
+    const desc = descripcion.value.trim();
+    const montoVal = Number(monto.value);
+    if (desc === "" || isNaN(montoVal) || montoVal <= 0) {
       showToast("Atencion", "Faltan datos a ingresar");
+      console.log("shot")
+      return;
     } else {
-      a++;
       let nMovimiento = new registro(
         selectTipo.value,
-        descripcion.value,
-        Number(monto.value)
+        desc,
+        montoVal
       );
       movimientosMenusales.push(nMovimiento);
       form.reset();
     }
+    form.reset();
   });
   finalizarRegistro.addEventListener("click", () => {
-    if (a == 1) {
+    if (movimientosMenusales.length === 0) {
       showToast("Atencion", "No ingresaste ningun registro");
     } else {
       form.reset();
@@ -96,6 +100,9 @@ function crearResumen(key) {
   const registros = Array.isArray(registrosArr[0])
     ? registrosArr[0]
     : registrosArr;
+  const registros = Array.isArray(registrosArr[0])
+    ? registrosArr[0]
+    : registrosArr;
   registros.forEach((registro) => {
     if (registro.tipo === "true") {
       totalIngresos += registro.monto;
@@ -107,10 +114,11 @@ function crearResumen(key) {
   document.getElementById("total-gastos").textContent = totalGastos;
   document.getElementById("balance").textContent = totalIngresos - totalGastos;
   crearTablaRegistros(key);
+  crearTablaRegistros(key);
 }
 
 function mostrarRegistrosDisponibles() {
-  const lista = document.getElementById("lista-registros");
+  const lista = document.getElementById("registros-ul");
   const registrosStr = localStorage.getItem("registros");
   if (!registrosStr) {
     const li = document.createElement("li");
@@ -170,6 +178,8 @@ function crearTablaRegistros(key) {
   const registrosArr = JSON.parse(registrosStr);
   const cont = document.getElementById("resumen-general");
   cont.innerHTML = "";
+  const cont = document.getElementById("resumen-general");
+  cont.innerHTML = "";
   const table = document.createElement("table");
   table.className = "table table-striped";
   const thead = document.createElement("thead");
@@ -207,6 +217,7 @@ function crearTablaRegistros(key) {
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
+  cont.appendChild(table);
   cont.appendChild(table);
 }
 
