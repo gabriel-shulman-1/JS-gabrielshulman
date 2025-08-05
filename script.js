@@ -54,14 +54,10 @@ function guardarRegistro() {
     const montoVal = Number(monto.value);
     if (desc === "" || isNaN(montoVal) || montoVal <= 0) {
       showToast("Atencion", "Faltan datos a ingresar");
-      console.log("shot")
+      console.log("shot");
       return;
     } else {
-      let nMovimiento = new registro(
-        selectTipo.value,
-        desc,
-        montoVal
-      );
+      let nMovimiento = new registro(selectTipo.value, desc, montoVal);
       movimientosMenusales.push(nMovimiento);
       form.reset();
     }
@@ -100,9 +96,6 @@ function crearResumen(key) {
   const registros = Array.isArray(registrosArr[0])
     ? registrosArr[0]
     : registrosArr;
-  const registros = Array.isArray(registrosArr[0])
-    ? registrosArr[0]
-    : registrosArr;
   registros.forEach((registro) => {
     if (registro.tipo === "true") {
       totalIngresos += registro.monto;
@@ -118,7 +111,7 @@ function crearResumen(key) {
 }
 
 function mostrarRegistrosDisponibles() {
-  const lista = document.getElementById("registros-ul");
+  const lista = document.getElementById("lista-registros");
   const registrosStr = localStorage.getItem("registros");
   if (!registrosStr) {
     const li = document.createElement("li");
@@ -127,6 +120,7 @@ function mostrarRegistrosDisponibles() {
     return;
   } else {
     const registros = JSON.parse(registrosStr);
+    console.log(registros);
     lista.innerHTML = registros
       .map(
         (registroKey) =>
@@ -178,8 +172,6 @@ function crearTablaRegistros(key) {
   const registrosArr = JSON.parse(registrosStr);
   const cont = document.getElementById("resumen-general");
   cont.innerHTML = "";
-  const cont = document.getElementById("resumen-general");
-  cont.innerHTML = "";
   const table = document.createElement("table");
   table.className = "table table-striped";
   const thead = document.createElement("thead");
@@ -200,8 +192,8 @@ function crearTablaRegistros(key) {
       <td>${registro.tipo === "true" ? "Ingreso" : "Gasto"}</td>
       <td>${registro.descripcion}</td>
       <td>${registro.monto}$</td>
-      <td><p class="dolar-value">Cargando...</p><i class="bi bi-currency-dollar"></i></td>
-      <td><p class="euro-value">Cargando...</p><i class="bi bi-currency-euro"></i></td>
+      <td><p class="dolar-value">Cargando...</p></td>
+      <td><p class="euro-value">Cargando...</p></td>
     `;
     // Mostrar el resultado de monedaExtranjera en los <p>
     monedaExtranjera(registro.monto, true).then((dolar) => {
