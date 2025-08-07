@@ -10,7 +10,7 @@ let a;
 
 //API's
 
-async function getCotizacionBlue(tipe) {
+async function getCotizacionBlue() {
   try {
     const respuesta = await fetch("https://api.bluelytics.com.ar/v2/latest");
     const data = await respuesta.json();
@@ -19,7 +19,7 @@ async function getCotizacionBlue(tipe) {
     let cotizacion = [dolar, euro];
     return cotizacion;
   } catch (error) {
-    console.error("Error al obtener la cotización:", error);
+    showToast('Atencion', "Error al obtener la cotización")
     return null;
   }
 }
@@ -49,14 +49,20 @@ function guardarRegistro() {
   const selectTipo = document.getElementById("tipo");
   const descripcion = document.getElementById("descripcion");
   const monto = document.getElementById("monto");
+  const numMovimiento = document.getElementById("movNum")
   agregarMovimiento.addEventListener("click", () => {
     const desc = descripcion.value.trim();
     const montoVal = Number(monto.value);
     if (desc === "" || isNaN(montoVal) || montoVal <= 0) {
       showToast("Atencion", "Faltan datos a ingresar");
-      console.log("shot");
       return;
     } else {
+      if (typeof numeroMov === "undefined") {
+      numeroMov = 1;
+      } else {
+      numeroMov++;
+      }
+      numMovimiento.innerText = numeroMov;
       let nMovimiento = new registro(selectTipo.value, desc, montoVal);
       movimientosMenusales.push(nMovimiento);
       form.reset();
@@ -68,6 +74,8 @@ function guardarRegistro() {
       showToast("Atencion", "No ingresaste ningun registro");
     } else {
       form.reset();
+      numeroMov = 0;
+      numMovimiento.innerText = "";
       registroF1 = JSON.stringify([movimientosMenusales]);
       localStorage.setItem("registro" + b.toString(), registroF1);
       a = 1;
@@ -107,20 +115,19 @@ function crearResumen(key) {
   document.getElementById("total-gastos").textContent = totalGastos;
   document.getElementById("balance").textContent = totalIngresos - totalGastos;
   crearTablaRegistros(key);
-  crearTablaRegistros(key);
 }
 
 function mostrarRegistrosDisponibles() {
   const lista = document.getElementById("lista-registros");
   const registrosStr = localStorage.getItem("registros");
-  if (!registrosStr) {
+  if (JSON.parse(registrosStr).length===0) {
+    lista.innerHTML="";
     const li = document.createElement("li");
     li.textContent = "no hay registros aun";
     lista.appendChild(li);
     return;
   } else {
     const registros = JSON.parse(registrosStr);
-    console.log(registros);
     lista.innerHTML = registros
       .map(
         (registroKey) =>
@@ -140,7 +147,10 @@ function borrarResumen(registro) {
   registros = registros.filter((r) => r !== registro);
   localStorage.setItem("registros", JSON.stringify(registros));
   mostrarRegistrosDisponibles();
-  document.getElementById("resumen-general").innerHTML = "";
+  document.getElementById("resumen-general").innerHTML = `
+    <h5 class="card-title">Resumen general</h5>
+    <p class="mb-0">Seleccione un registro</p>
+  `;
   document.getElementById("total-ingresos").textContent = "0";
   document.getElementById("total-gastos").textContent = "0";
   document.getElementById("balance").textContent = "0";
@@ -209,7 +219,6 @@ function crearTablaRegistros(key) {
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
-  cont.appendChild(table);
   cont.appendChild(table);
 }
 

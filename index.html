@@ -24,9 +24,10 @@
             <form id="movimiento-form" autocomplete="off">
               <div class="mb-3">
                 <label for="tipo" class="form-label" id="tipo-tx"
-                  >Tipo de movimiento</label
+                  >Tipo de movimiento <span id="movNum"></span></label
                 >
                 <select class="form-select" id="tipo" name="tipo" required>
+                  <option value="null">Seleccione una operacion</option>
                   <option value="true">Ingreso</option>
                   <option value="false">Gasto</option>
                 </select>
@@ -76,9 +77,7 @@
           <div class="card p-3 mb-2 bg-light text-dark">
             <h5 class="card-title">Lista de registros</h5>
             <ul class="list-group" id="lista-registros">
-              <!-- Los registros se agregarán aquí dinámicamente -->
             </ul>
-            <p>No hay registros disponibles.</p>
           </div>
         </div>
         <!-- Columna 3: Resumen de movimientos -->
